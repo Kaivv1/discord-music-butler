@@ -9,10 +9,6 @@ import {
 
 export interface CustomClient extends Client {
   commands: Collection<string, RESTPostAPIApplicationCommandsJSONBody>;
-  queue: GuildQueue<{
-    channel: TextBasedChannel | null;
-    requestedBy: string;
-  }>;
 }
 
 export interface Command extends RESTPostAPIApplicationCommandsJSONBody {
@@ -28,4 +24,15 @@ export interface Command extends RESTPostAPIApplicationCommandsJSONBody {
 
 global {
   type CustomId = "resume" | "stop" | "skip" | "pause";
+
+  interface CustomPlayer {
+    initExtractors: () => void;
+    initCurrentSongEvent: () => void;
+    initAddSongEvent: () => void;
+    initQueueEmptyEvent: () => void;
+    initCreateQueueEvent: () => void;
+    initAddPlaylistEvent: () => void;
+    initPlayerErrorEvent: () => void;
+    initErrorEvent: () => void;
+  }
 }

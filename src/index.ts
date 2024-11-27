@@ -12,10 +12,9 @@ import { Command, CustomClient } from "../global.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { GuildQueue, Player } from "discord-player";
-import { YoutubeiExtractor } from "discord-player-youtubei";
+import { MusicPlayer } from "./player.js";
 
-export const client = new Client({
+const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildMembers,
@@ -44,9 +43,16 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON());
   });
 }
-const player = new Player(client as any);
-await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
-await player.extractors.register(YoutubeiExtractor, {});
+const customPlayer = new MusicPlayer(client);
+customPlayer.initExtractors();
+customPlayer.initCurrentSongEvent();
+customPlayer.initAddSongEvent();
+customPlayer.initAddPlaylistEvent();
+customPlayer.initCreateQueueEvent();
+customPlayer.initQueueEmptyEvent();
+customPlayer.initSongFinishesEvent();
+customPlayer.initPlayerErrorEvent();
+customPlayer.initErrorEvent();
 
 client.on("ready", () => {
   const guild_ids = client.guilds.cache.map((guild) => guild.id);
@@ -75,6 +81,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.reply("Command can't be executed, sir.");
     }
   } else if (interaction.isButton()) {
+    const { player } = customPlayer;
     const queue = player.nodes.get(interaction.guild?.id!);
 
     switch (interaction.customId as CustomId) {
@@ -124,8 +131,6 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.on("interactionCreate", async (interaction) => {});
-
 client.on("error", (error) => {
   console.error("An error occurred:", error);
 });
@@ -133,3 +138,5 @@ client.on("error", (error) => {
 client.login(process.env.TOKEN).catch((error: DiscordjsError) => {
   console.log(error.message);
 });
+
+export default client;
